@@ -1,0 +1,14 @@
+{
+    "name": "NileDelta",
+    "description": "logStream utility library",
+    "version": "0.0.1",
+    "private": true,
+    "keywords": ["log, syslog"],
+    "repository": "https://github.com/victusfate/Nile-Delta",
+    "scripts": {
+        "preinstall": "node-waf configure build"
+    },
+    "engines" : {
+        "node" : ">=0.5.2"
+    },
+}
