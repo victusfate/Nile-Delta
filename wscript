@@ -23,9 +23,9 @@ def configure(conf):
 
 def build(bld):
 #   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
-#   obj.target = "logStream"
-#   obj.source =  bld.glob('src/*.cc')
-#   obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE"]
+  obj.target = "logStream"
+  obj.source =  bld.glob('src/*.cc')
+  obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE"]
 #   obj.uselib = []
 
 
