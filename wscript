@@ -21,7 +21,7 @@ def configure(conf):
 
   print flags
 
-# def build(bld):
+def build(bld):
 #   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
 #   obj.target = "logStream"
 #   obj.source =  bld.glob('src/*.cc')
