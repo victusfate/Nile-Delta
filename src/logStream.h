@@ -31,7 +31,7 @@ class LogStream
         void reset() { m_oss.str(""); }
         
         void setAction(const string &action) {
-            m_action = action + string("{ message:'");
+            m_action = string("{\"action\":\"") + action + string("\",\"message\":\"");
         }
 
         template<typename T> 
@@ -49,7 +49,7 @@ class LogStream
         
         
         static LogStream& endl(LogStream& stream) {
-            string slog = stream.m_action + stream.m_oss.str() + "'}";
+            string slog = stream.m_action + stream.m_oss.str() + "\"}";
             syslog(stream.m_logType,"%s",slog.c_str());                
             std::cout << stream.m_oss.str() << std::endl;
             stream.m_oss.str("");
