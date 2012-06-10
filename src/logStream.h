@@ -65,7 +65,9 @@ class LogStream
         LogStream& operator<<(StandardEndLine manip) {
             manip(std::cout);
             return *this;
-        }        
+        }    
+        
+        void MakeNodePackageManagerHappy();    
 
    protected:       
        string m_action;
