@@ -1,5 +1,6 @@
 {
     "name": "Nile-Delta",
+    "main": "./lib/NileDelta",
     "description": "logStream utility library",
     "version": "0.0.1",
     "private": true,
