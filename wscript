@@ -14,7 +14,7 @@ def set_options(opt):
 def configure(conf):
   conf.check_tool("compiler_cxx")
   conf.check_tool("node_addon")
-  flags = ['-O3', '-Wall', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-msse2']
+  flags = ['-O3', '-Wall', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-D_NILE_DELTA_NODE_MODULE', '-msse2']
 
   conf.env.append_value('CCFLAGS', flags)
   conf.env.append_value('CXXFLAGS', flags)
@@ -25,7 +25,7 @@ def build(bld):
   obj = bld.new_task_gen("cxx", "shlib", "node_addon")
   obj.target = "logStream"
   obj.source =  bld.glob('src/*.cc')
-  obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE"]
+  obj.cxxflags = ["-D_FILE_OFFSET_BITS=64", "-D_LARGEFILE_SOURCE", "-D_NILE_DELTA_NODE_MODULE"]
 #   obj.uselib = []
 
 
