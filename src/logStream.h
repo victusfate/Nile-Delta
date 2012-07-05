@@ -8,9 +8,8 @@
 #include <syslog.h>
 
 #include <sys/types.h>
-#include <time.h>
+#include <sys/time.h>
 
-using namespace std;
 
 using namespace std;
 
@@ -80,9 +79,13 @@ class LogStream
        ostringstream m_oss; 
 };
 
+//could use CLOCK_MONOTONIC if -std=gnu99, clock_gettime or chrono with c+x11
+
 class RunTime {
     public:
-        RunTime() { m_first = clock(); };
+        RunTime() {
+            gettimeofday(&m_first,NULL); 
+        };
         string TimeFormat(const double NumSeconds) const;
         double TotalSeconds() const;
         double TotalMilliSeconds() const;
@@ -90,7 +93,7 @@ class RunTime {
 
         friend ostream& operator<<(ostream& ros, const RunTime &rTime);
     private:
-        time_t m_first;
+        timeval m_first;
 };
 
 
@@ -130,22 +133,20 @@ string RunTime::TimeFormat(const double NumSeconds) const
 
 double RunTime::TotalSeconds() const
 {
-    time_t val = clock();
-    return ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
+    timeval val;
+    gettimeofday(&val,NULL);
+    double dMicroSec = (val.tv_sec * 1e6 + val.tv_usec) - (m_first.tv_sec * 1e6 + m_first.tv_usec);
+    return (dMicroSec/1e6);
 }
 
 double RunTime::TotalMilliSeconds() const
 {
-    time_t val = clock();
-    double seconds = ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
-    return seconds * 1000;
+    return (TotalSeconds() * 1000);
 }
 
 double RunTime::TotalMicroSeconds() const
 {
-    time_t val = clock();
-    double seconds = ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
-    return seconds * 1e6;
+    return (TotalSeconds() * 1e6);
 }
 
 ostream& operator<<( ostream& ros, const RunTime &rTime) 
