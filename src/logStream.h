@@ -135,8 +135,9 @@ double RunTime::TotalSeconds() const
 {
     timeval val;
     gettimeofday(&val,NULL);
-    double dMicroSec = (val.tv_sec * 1e6 + val.tv_usec) - (m_first.tv_sec * 1e6 + m_first.tv_usec);
-    return (dMicroSec/1e6);
+    double dSec = val.tv_sec - m_first.tv_sec;
+    double dMicroSec = val.tv_usec - m_first.tv_usec;
+    return (dSec + (dMicroSec/1e6) );
 }
 
 double RunTime::TotalMilliSeconds() const
