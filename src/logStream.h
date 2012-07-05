@@ -7,6 +7,11 @@
 #include <sstream>
 #include <syslog.h>
 
+#include <sys/types.h>
+#include <time.h>
+
+using namespace std;
+
 using namespace std;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
@@ -74,5 +79,79 @@ class LogStream
        int m_logType;
        ostringstream m_oss; 
 };
+
+class RunTime {
+    public:
+        RunTime() { m_first = clock(); };
+        string TimeFormat(const double NumSeconds) const;
+        double TotalSeconds() const;
+        double TotalMilliSeconds() const;
+        double TotalMicroSeconds() const;
+
+        friend ostream& operator<<(ostream& ros, const RunTime &rTime);
+    private:
+        time_t m_first;
+};
+
+
+string RunTime::TimeFormat(const double NumSeconds) const
+{
+    stringstream line;
+    const long BSIZE = 100;
+    char buf[BSIZE];
+    if (NumSeconds > 1.0) {
+        double total_seconds = NumSeconds;
+        long minutes = (long)total_seconds / 60;
+        long hours = minutes / 60;
+        minutes = minutes - hours * 60;
+        double seconds = total_seconds - minutes * 60 - hours * 3600;
+        if (hours) sprintf(buf,"%ld:%2.2ld:%5.3f",hours,minutes,seconds);
+        else if (minutes) sprintf(buf,"%2.2ld:%5.3f",minutes,seconds);
+        else sprintf(buf,"%5.3f seconds",seconds);
+    }
+    else {
+        double milliSeconds = NumSeconds * 1000.0;
+        if (milliSeconds > 1.0) {
+            sprintf(buf,"%5.3f msecs",milliSeconds);
+        }
+        else {
+            double microSeconds = NumSeconds * 1e6;
+            if (microSeconds > 1.0) {
+                sprintf(buf,"%5.3f usecs",microSeconds);
+            }
+            else {
+                double nanoSeconds = NumSeconds * 1e9;
+                sprintf(buf,"%5.3f nsecs",nanoSeconds);
+            }
+        }
+    }
+    return buf;
+}
+
+double RunTime::TotalSeconds() const
+{
+    time_t val = clock();
+    return ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
+}
+
+double RunTime::TotalMilliSeconds() const
+{
+    time_t val = clock();
+    double seconds = ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
+    return seconds * 1000;
+}
+
+double RunTime::TotalMicroSeconds() const
+{
+    time_t val = clock();
+    double seconds = ( (double)(val - m_first)/(double)CLOCKS_PER_SEC );
+    return seconds * 1e6;
+}
+
+ostream& operator<<( ostream& ros, const RunTime &rTime) 
+{
+    ros << rTime.TimeFormat(rTime.TotalSeconds());
+    return ros;
+}
 
 #endif
