@@ -112,16 +112,16 @@ string RunTime::TimeFormat(const double NumSeconds) const
     else {
         double milliSeconds = NumSeconds * 1000.0;
         if (milliSeconds > 1.0) {
-            sprintf(buf,"%5.3f msecs",milliSeconds);
+            sprintf(buf,"%5.3f ms",milliSeconds);
         }
         else {
             double microSeconds = NumSeconds * 1e6;
             if (microSeconds > 1.0) {
-                sprintf(buf,"%5.3f usecs",microSeconds);
+                sprintf(buf,"%5.3f us",microSeconds);
             }
             else {
                 double nanoSeconds = NumSeconds * 1e9;
-                sprintf(buf,"%5.3f nsecs",nanoSeconds);
+                sprintf(buf,"%5.3f ns",nanoSeconds);
             }
         }
     }
