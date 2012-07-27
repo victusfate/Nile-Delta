@@ -7,7 +7,6 @@
     "keywords": ["log, syslog"],
     "repository": "https://github.com/victusfate/Nile-Delta",
     "scripts": {
-        "preinstall": "node-waf configure build"
     },
     "engines" : {
         "node" : ">=0.5.2"
