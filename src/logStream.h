@@ -55,7 +55,7 @@ class LogStream
         static LogStream& endl(LogStream& stream) {
             string slog = stream.m_action + stream.m_oss.str() + "\"}";
             syslog(stream.m_logType,"%s",slog.c_str());                
-            std::cout << stream.m_oss.str() << std::endl;
+            //std::cout << stream.m_oss.str() << std::endl;
             stream.m_oss.str("");
             return stream;
         }
