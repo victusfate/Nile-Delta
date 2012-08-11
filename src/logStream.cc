@@ -10,32 +10,20 @@ string RunTime::TimeFormat(const double NumSeconds) const
     stringstream line;
     const long BSIZE = 100;
     char buf[BSIZE];
-    if (NumSeconds > 1.0) {
-        double total_seconds = NumSeconds;
-        long minutes = (long)total_seconds / 60;
-        long hours = minutes / 60;
-        minutes = minutes - hours * 60;
-        double seconds = total_seconds - minutes * 60 - hours * 3600;
-        if (hours) sprintf(buf,"%ld:%2.2ld:%5.3f",hours,minutes,seconds);
-        else if (minutes) sprintf(buf,"%2.2ld:%5.3f",minutes,seconds);
-        else sprintf(buf,"%5.3f seconds",seconds);
-    }
-    else {
-        double milliSeconds = NumSeconds * 1000.0;
-        if (milliSeconds > 1.0) {
-            sprintf(buf,"%5.3f ms",milliSeconds);
-        }
-        else {
-            double microSeconds = NumSeconds * 1e6;
-            if (microSeconds > 1.0) {
-                sprintf(buf,"%5.3f us",microSeconds);
-            }
-            else {
-                double nanoSeconds = NumSeconds * 1e9;
-                sprintf(buf,"%5.3f ns",nanoSeconds);
-            }
-        }
-    }
+    // if (NumSeconds > 1.0) {
+    //     double total_seconds = NumSeconds;
+    //     long minutes = (long)total_seconds / 60;
+    //     long hours = minutes / 60;
+    //     minutes = minutes - hours * 60;
+    //     double seconds = total_seconds - minutes * 60 - hours * 3600;
+    //     if (hours) sprintf(buf,"%ld:%2.2ld:%5.3f",hours,minutes,seconds);
+    //     else if (minutes) sprintf(buf,"%2.2ld:%5.3f",minutes,seconds);
+    //     else sprintf(buf,"%5.3f seconds",seconds);
+    // }
+    // else {
+    double milliSeconds = NumSeconds * 1000.0;
+    sprintf(buf,", duration: %5.3f ms",milliSeconds);
+
     return buf;
 }
 
