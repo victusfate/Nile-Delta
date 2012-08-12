@@ -22,7 +22,7 @@ string RunTime::TimeFormat(const double NumSeconds) const
     // }
     // else {
     double milliSeconds = NumSeconds * 1000.0;
-    sprintf(buf,", duration: %5.3f ms",milliSeconds);
+    sprintf(buf,"\"} \"duration\": %5.3f ",milliSeconds);
 
     return buf;
 }
