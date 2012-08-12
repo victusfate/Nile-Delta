@@ -1,10 +1,5 @@
 #include "logStream.h"
 
-void LogStream::MakeNodePackageManagerHappy() {
-    double existence = 42;
-    cout << existence << endl;
-}
-
 string RunTime::TimeFormat(const double NumSeconds) const
 {
     stringstream line;

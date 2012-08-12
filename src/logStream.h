@@ -71,8 +71,6 @@ class LogStream
             return *this;
         }    
         
-        void MakeNodePackageManagerHappy();    
-
    protected:       
        string m_action;
        int m_logType;
