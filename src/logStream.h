@@ -94,4 +94,8 @@ class RunTime {
         timeval m_first;
 };
 
+// will aid in silencing warnings about ignored return types
+template<class T>
+inline void ignore_return(T s){};
+
 #endif
