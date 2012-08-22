@@ -45,7 +45,7 @@ class LogStream
 
         template<typename T> 
         LogStream& operator<<(const T& rhs) {
-            std::cout << "LogStream<< type " << typeid(T).name() << " for T " << rhs << endl;
+            std::cout << "LogStream<< type " << typeid(T).name() << " for T " << rhs << std::endl;
             m_oss << rhs;
             return *this; 
         }
