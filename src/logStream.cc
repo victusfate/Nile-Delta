@@ -1,63 +1,140 @@
 #include "logStream.h"
 
-Handle<Value> parseJson(Handle<Value> jsonString) {
-    HandleScope scope;
 
-    Handle<v8::Context> context = v8::Context::GetCurrent();
-    Handle<Object> global = context->Global();
 
-    Handle<Object> JSON = global->Get(String::New("JSON"))->ToObject();
-    Handle<Function> JSON_parse = Handle<Function>::Cast(JSON->Get(String::New("parse")));
-
-    // return JSON.parse.apply(JSON, jsonString);
-    return scope.Close(JSON_parse->Call(JSON, 1, &jsonString));
+LogBlob::LogBlob(const int &val) : m_Type(LBINT) {
+    m_iVal = val;
 }
 
-Handle<Value> toJson(Handle<Value> object)
+LogBlob::LogBlob(const double &val) : m_Type(LBDOUBLE) {
+    m_dVal = val;
+}
+
+LogBlob::LogBlob(const string &val) : m_Type(LBSTRING) {
+    m_sVal = val;
+}
+
+LogBlob::LogBlob(const LogBlob &val) {
+    *this = val;
+}
+
+LogBlob::LogBlob(const string &key, const int &val) {
+    insert(key,val);
+}
+
+LogBlob::LogBlob(const string &key, const double &val) {
+    insert(key,val);
+}
+
+LogBlob::LogBlob(const string &key, const string &val) {
+    insert(key,val);
+}
+
+LogBlob::LogBlob(const string &key, const LogBlob &val) {
+    insert(key,val);
+}
+
+
+void LogBlob::insert(const string &key, const int &val)
 {
-    HandleScope scope;
+    m_Type = LBMAP;
+    m_Blob[key] = new LogBlob(val);   
+}
 
-    Handle<v8::Context> context = v8::Context::GetCurrent();
-    Handle<Object> global = context->Global();
+void LogBlob::insert(const string &key, const double &val)
+{
+    m_Type = LBMAP;
+    m_Blob[key] = new LogBlob(val);   
+}
 
-    Handle<Object> JSON = global->Get(String::New("JSON"))->ToObject();
-    Handle<Function> JSON_stringify = Handle<Function>::Cast(JSON->Get(String::New("stringify")));
-    return scope.Close(JSON_stringify->Call(JSON, 1, &object));
+void LogBlob::insert(const string &key, const string &val)
+{
+    m_Type = LBMAP;
+    m_Blob[key] = new LogBlob(val);   
+}
+
+void LogBlob::insert(const string &key, const LogBlob &val)
+{
+    m_Type = LBMAP;
+    m_Blob[key] = new LogBlob(val);   
+
 }
 
 
-string ObjectToString(Local<Value> value) {
-  String::Utf8Value utf8_value(value);
-  return string(*utf8_value);
+LogBlob::~LogBlob()
+{
+    clean();
+}
+
+void LogBlob::clean()
+{
+    map<string, LogBlob* >::iterator i = m_Blob.begin();
+    for (;i != m_Blob.end();i++) {
+        if (i->second) delete i->second; // should cascade down complex LogBlob maps
+    }
+}
+
+const LogBlob& LogBlob::operator=(const LogBlob &r)
+{
+    clean();
+
+    map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
+    for (;i != r.m_Blob.end();i++) {
+        m_Blob[i->first] = new LogBlob(*(i->second));
+    }
+    m_iVal = r.m_iVal;
+    m_dVal = r.m_dVal;
+    m_sVal = r.m_sVal;
+    m_Type = r.m_Type;
+
+    return *this;
 }
 
 
-Local<Object> kvPair(const string &key, double val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), Number::New(val) );
-    return scope.Close(pObj);
-}
 
-Local<Object> kvPair(const string &key, int val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), Number::New(val) );
-    return scope.Close(pObj);
-}
+ostream& operator<<(ostream& ros, const LogBlob &rBlob)
+{
+    if (rBlob.m_Blob.size()) {
+    ros << "{";
+        map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
+        for (;i != rBlob.m_Blob.end();i++) {
+            if (i != rBlob.m_Blob.begin()) {
+                ros << ",";
+            }
+            
+            ros << "\"" << i->first << "\":";
+            if (i->second->m_Blob.size()) {
+                ros << *(i->second);
+            }
+            else {
+                ros << "\"" << *(i->second) << "\"";
+            }
+        }
+    ros << "}";
+    }
+    else {
+        if (rBlob.m_Type == LBINT) {
+            ros << rBlob.m_iVal;    
+        }
+        else if (rBlob.m_Type == LBDOUBLE) {
+            ros << rBlob.m_dVal;
+        }
+        else if (rBlob.m_Type == LBSTRING) {
+            ros << rBlob.m_sVal;
+        }
+        else if (rBlob.m_Type == LBDOUBLE) {
+            ros << rBlob.m_dVal;
+        }
+        else {
+            stringstream emsg;
+            emsg << "ERROR LogBlob unhandled Blob value type " << rBlob.m_Type;
+            syslog(LOG_DEBUG,"%s",emsg.str().c_str());                
+            std::cout << emsg.str() << std::endl;
+            ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));    
+        }
+    }
 
-Local<Object> kvPair(const string &key, const string &val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), String::New(val.c_str()) );
-    return scope.Close(pObj);
-}
-
-Local<Object> kvPair(const string &key, Local<Object> rObj) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), rObj );
-    return scope.Close(pObj);
+    return ros;
 }
 
 

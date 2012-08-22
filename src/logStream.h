@@ -8,6 +8,8 @@
 #include <syslog.h>
 #include <typeinfo>
 #include <vector>
+#include <map>
+#include <iterator>
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -19,13 +21,39 @@
 using namespace std;
 using namespace v8;
 
-Handle<Value>           parseJson(Handle<Value> jsonString);
-Handle<Value>           toJson(Handle<Value> object);
-string                  ObjectToString(Local<Value> value);
-Local<Object>           kvPair(const string &key, double val);
-Local<Object>           kvPair(const string &key, int val);
-Local<Object>           kvPair(const string &key, const string &val);
-Local<Object>           kvPair(const string &key, Local<Object> rObj);
+
+enum LogBlobType { LBMAP, LBINT, LBDOUBLE, LBSTRING };
+
+class LogBlob {
+public:
+    LogBlob(const int &val);
+    LogBlob(const double &val);
+    LogBlob(const string &val);
+    LogBlob(const LogBlob &val);
+    LogBlob(const string &key, const int &val);
+    LogBlob(const string &key, const double &val);
+    LogBlob(const string &key, const string &val);
+    LogBlob(const string &key, const LogBlob &val);
+
+    virtual ~LogBlob();
+    void clean();
+
+    void insert(const string &key, const int &val);
+    void insert(const string &key, const double &val);
+    void insert(const string &key, const string &val);
+    void insert(const string &key, const LogBlob &val);
+
+    const LogBlob& operator=(const LogBlob &r);
+    friend ostream& operator<<(ostream& ros, const LogBlob &rBlob);
+
+    map<string, LogBlob* > m_Blob;
+    int m_iVal;
+    double m_dVal;
+    string m_sVal;
+    LogBlobType m_Type;
+};
+
+
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -58,9 +86,8 @@ class LogStream
             return *this; 
         }
 
-        LogStream& operator+(Local<Object> rhs) {
-            HandleScope scope;
-            m_objects.push_back(rhs);
+        LogStream& operator+(const LogBlob &rhs) {
+            m_objects.push_back(&rhs);
             return *this; 
         }
 
@@ -74,28 +101,20 @@ class LogStream
         
         
         static LogStream& endl(LogStream& stream) {
-            uv_mutex_t mutex;
-            int r;
-            r = uv_mutex_init(&mutex);
-            if (r != 0) {
-                string emsg("UV MUTEX INIT FAILED");
-                syslog(stream.m_logType,"%s",emsg.c_str());                
-                std::cout << emsg << std::endl;                
-            }
-            uv_mutex_lock(&mutex);
-            Local<Object> act = kvPair("action",stream.m_action);
-            Local<Object> msg = kvPair("message",stream.m_oss.str());
-            string slog = ObjectToString(*toJson(act)) + ObjectToString(*toJson(msg));
+
+            LogBlob act("action",stream.m_action);
+            LogBlob msg("message",stream.m_oss.str());
+
+            stringstream slog;
+            slog << "{" << act << "," << msg;
             for (unsigned long i=0;i < stream.m_objects.size();i++) {
-                slog += ObjectToString(*toJson(stream.m_objects[i]));
+                slog << "," << stream.m_objects[i];
             }
-            syslog(stream.m_logType,"%s",slog.c_str());                
-            std::cout << slog << std::endl;
+            slog << "}";
+            syslog(stream.m_logType,"%s",slog.str().c_str());                
+            std::cout << slog.str() << std::endl;
             stream.m_oss.str("");
             stream.m_objects.resize(0);
-
-            uv_mutex_unlock(&mutex);
-            uv_mutex_destroy(&mutex);
 
             return stream;
         }
@@ -115,7 +134,7 @@ class LogStream
        string m_action;
        int m_logType;
        ostringstream m_oss;
-       vector<Local<Object> > m_objects;
+       vector<const LogBlob* > m_objects;
 };
 
 //could use CLOCK_MONOTONIC if -std=gnu99, clock_gettime or chrono with c+x11
