@@ -19,40 +19,16 @@ using namespace std;
 using namespace v8;
 
 
-string ObjectToString(Local<Value> value) {
-  String::Utf8Value utf8_value(value);
-  return string(*utf8_value);
-}
+string ObjectToString(Local<Value> value);
 
 
-Local<Object> kvPair(const string &key, double val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), Number::New(val) );
-    return scope.Close(pObj);
-}
+Local<Object> kvPair(const string &key, double val);
 
-Local<Object> kvPair(const string &key, int val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), Number::New(val) );
-    return scope.Close(pObj);
-}
+Local<Object> kvPair(const string &key, int val);
 
-Local<Object> kvPair(const string &key, const string &val) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), String::New(val.c_str()) );
-    return scope.Close(pObj);
-}
+Local<Object> kvPair(const string &key, const string &val);
 
-Local<Object> kvPair(const string &key, Local<Object> rObj) {
-    HandleScope scope;
-    Local<Object> pObj = Object::New();
-    pObj->Set(String::New(key.c_str()), rObj );
-    return scope.Close(pObj);
-}
-
+Local<Object> kvPair(const string &key, Local<Object> rObj);
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
