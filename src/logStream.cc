@@ -1,5 +1,31 @@
 #include "logStream.h"
 
+Handle<Value> parseJson(Handle<Value> jsonString) {
+    HandleScope scope;
+
+    Handle<v8::Context> context = v8::Context::GetCurrent();
+    Handle<Object> global = context->Global();
+
+    Handle<Object> JSON = global->Get(String::New("JSON"))->ToObject();
+    Handle<Function> JSON_parse = Handle<Function>::Cast(JSON->Get(String::New("parse")));
+
+    // return JSON.parse.apply(JSON, jsonString);
+    return scope.Close(JSON_parse->Call(JSON, 1, &jsonString));
+}
+
+Handle<Value> toJson(Handle<Value> object)
+{
+    HandleScope scope;
+
+    Handle<v8::Context> context = v8::Context::GetCurrent();
+    Handle<Object> global = context->Global();
+
+    Handle<Object> JSON = global->Get(String::New("JSON"))->ToObject();
+    Handle<Function> JSON_stringify = Handle<Function>::Cast(JSON->Get(String::New("stringify")));
+    return scope.Close(JSON_stringify->Call(JSON, 1, &object));
+}
+
+
 string ObjectToString(Local<Value> value) {
   String::Utf8Value utf8_value(value);
   return string(*utf8_value);

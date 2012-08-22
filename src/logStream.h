@@ -18,17 +18,13 @@
 using namespace std;
 using namespace v8;
 
-
-string ObjectToString(Local<Value> value);
-
-
-Local<Object> kvPair(const string &key, double val);
-
-Local<Object> kvPair(const string &key, int val);
-
-Local<Object> kvPair(const string &key, const string &val);
-
-Local<Object> kvPair(const string &key, Local<Object> rObj);
+Handle<Value>           parseJson(Handle<Value> jsonString);
+Handle<Value>           toJson(Handle<Value> object);
+string                  ObjectToString(Local<Value> value);
+Local<Object>           kvPair(const string &key, double val);
+Local<Object>           kvPair(const string &key, int val);
+Local<Object>           kvPair(const string &key, const string &val);
+Local<Object>           kvPair(const string &key, Local<Object> rObj);
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -79,13 +75,14 @@ class LogStream
         static LogStream& endl(LogStream& stream) {
             Local<Object> act = kvPair("action",stream.m_action);
             Local<Object> msg = kvPair("message",stream.m_oss.str());
-            string slog = ObjectToString(act) + ObjectToString(msg);
+            string slog = ObjectToString(*toJson(act)) + ObjectToString(*toJson(msg));
             for (unsigned long i=0;i < stream.m_objects.size();i++) {
-                slog += ObjectToString(stream.m_objects[i]);
+                slog += ObjectToString(*toJson(stream.m_objects[i]));
             }
             syslog(stream.m_logType,"%s",slog.c_str());                
             std::cout << slog << std::endl;
             stream.m_oss.str("");
+            stream.m_objects.resize(0);
             return stream;
         }
         
