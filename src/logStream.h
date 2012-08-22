@@ -14,6 +14,7 @@
 
 
 #include "v8.h"
+#include "node.h"
 
 using namespace std;
 using namespace v8;
@@ -73,6 +74,15 @@ class LogStream
         
         
         static LogStream& endl(LogStream& stream) {
+            uv_mutex_t mutex;
+            int r;
+            r = uv_mutex_init(&mutex);
+            if (r != 0) {
+                string emsg("UV MUTEX INIT FAILED");
+                syslog(stream.m_logType,"%s",emsg.c_str());                
+                std::cout << emsg << std::endl;                
+            }
+            uv_mutex_lock(&mutex);
             Local<Object> act = kvPair("action",stream.m_action);
             Local<Object> msg = kvPair("message",stream.m_oss.str());
             string slog = ObjectToString(*toJson(act)) + ObjectToString(*toJson(msg));
@@ -83,6 +93,10 @@ class LogStream
             std::cout << slog << std::endl;
             stream.m_oss.str("");
             stream.m_objects.resize(0);
+
+            uv_mutex_unlock(&mutex);
+            uv_mutex_destroy(&mutex);
+
             return stream;
         }
         
