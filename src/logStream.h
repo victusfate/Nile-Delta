@@ -6,12 +6,17 @@
 #include <iostream>
 #include <sstream>
 #include <syslog.h>
+#include <typeinfo>
+#include <vector>
 
 #include <sys/types.h>
 #include <sys/time.h>
 
 
+#include "v8.h"
+
 using namespace std;
+using namespace v8;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -40,6 +45,7 @@ class LogStream
 
         template<typename T> 
         LogStream& operator<<(const T& rhs) {
+            std::cout << "LogStream<< type " << typeid(T).name() << " for T " << rhs << endl;
             m_oss << rhs;
             return *this; 
         }
@@ -74,7 +80,8 @@ class LogStream
    protected:       
        string m_action;
        int m_logType;
-       ostringstream m_oss; 
+       ostringstream m_oss;
+       vector<Local<Object> > m_objects;
 };
 
 //could use CLOCK_MONOTONIC if -std=gnu99, clock_gettime or chrono with c+x11
