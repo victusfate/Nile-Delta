@@ -102,15 +102,13 @@ class LogStream
         
         static LogStream& endl(LogStream& stream) {
 
-            LogBlob act("action",stream.m_action);
-            LogBlob msg("message",stream.m_oss.str());
-
+            LogBlob lb("action",stream.m_action);
+            lb.insert("message", stream.m_oss.str());
             stringstream slog;
-            slog << "{" << act << "," << msg;
+            slog << lb;
             for (unsigned long i=0;i < stream.m_objects.size();i++) {
                 slog << "," << stream.m_objects[i];
             }
-            slog << "}";
             syslog(stream.m_logType,"%s",slog.str().c_str());                
             std::cout << slog.str() << std::endl;
             stream.m_oss.str("");

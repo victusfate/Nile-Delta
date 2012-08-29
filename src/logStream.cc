@@ -95,22 +95,22 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
 ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 {
     if (rBlob.m_Blob.size()) {
-    ros << "{";
-        map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
-        for (;i != rBlob.m_Blob.end();i++) {
-            if (i != rBlob.m_Blob.begin()) {
-                ros << ",";
+        ros << "{";
+            map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
+            for (;i != rBlob.m_Blob.end();i++) {
+                if (i != rBlob.m_Blob.begin()) {
+                    ros << ",";
+                }
+                
+                ros << "\"" << i->first << "\":";
+                if (i->second->m_Blob.size()) {
+                    ros << *(i->second);
+                }
+                else {
+                    ros << "\"" << *(i->second) << "\"";
+                }
             }
-            
-            ros << "\"" << i->first << "\":";
-            if (i->second->m_Blob.size()) {
-                ros << *(i->second);
-            }
-            else {
-                ros << "\"" << *(i->second) << "\"";
-            }
-        }
-    ros << "}";
+        ros << "}";
     }
     else {
         if (rBlob.m_Type == LBINT) {
@@ -121,9 +121,6 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
         }
         else if (rBlob.m_Type == LBSTRING) {
             ros << rBlob.m_sVal;
-        }
-        else if (rBlob.m_Type == LBDOUBLE) {
-            ros << rBlob.m_dVal;
         }
         else {
             stringstream emsg;
