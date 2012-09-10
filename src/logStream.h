@@ -107,7 +107,7 @@ class LogStream
             stringstream slog;
             slog << lb;
             for (unsigned long i=0;i < stream.m_objects.size();i++) {
-                slog << "," << stream.m_objects[i];
+                slog << "," << *(stream.m_objects[i]);
             }
             syslog(stream.m_logType,"%s",slog.str().c_str());                
             std::cout << slog.str() << std::endl;
