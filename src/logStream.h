@@ -109,8 +109,10 @@ class LogStream
             for (unsigned long i=0;i < stream.m_objects.size();i++) {
                 slog << "," << *(stream.m_objects[i]);
             }
-            syslog(stream.m_logType,"%s",slog.str().c_str());                
-            std::cout << slog.str() << std::endl;
+            syslog(stream.m_logType,"%s",slog.str().c_str());  
+            if (uv_guess_handle(1) == UV_TTY) {              
+                std::cout << slog.str() << std::endl;
+            }
             stream.m_oss.str("");
             stream.m_objects.resize(0);
 
