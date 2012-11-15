@@ -53,7 +53,9 @@ public:
     LogBlobType m_Type;
 };
 
-
+// make sure these are available to any modules that utilize Nile-Delta
+static string PARENT_REQUEST_HASH;
+static string REQUEST_HASH;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -103,6 +105,8 @@ class LogStream
         static LogStream& endl(LogStream& stream) {
 
             LogBlob lb("action",stream.m_action);
+            lb.insert("parentRequestHash", PARENT_REQUEST_HASH);
+            lb.insert("requestHash", REQUEST_HASH);
             lb.insert("message", stream.m_oss.str());
             stringstream slog;
             slog << lb;
