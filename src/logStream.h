@@ -54,8 +54,8 @@ public:
 };
 
 // make sure these are available to any modules that utilize Nile-Delta
-static string PARENT_REQUEST_HASH;
-static string REQUEST_HASH;
+extern string PARENT_REQUEST_HASH;
+extern string REQUEST_HASH;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 

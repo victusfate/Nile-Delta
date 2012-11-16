@@ -1,6 +1,9 @@
 #include "logStream.h"
 
 
+string PARENT_REQUEST_HASH;
+string REQUEST_HASH;
+
 
 LogBlob::LogBlob(const int &val) : m_Type(LBINT) {
     m_iVal = val;
