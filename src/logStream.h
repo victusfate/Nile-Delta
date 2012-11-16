@@ -105,8 +105,8 @@ class LogStream
         static LogStream& endl(LogStream& stream) {
 
             LogBlob lb("action",stream.m_action);
-            lb.insert("parentRequestHash", PARENT_REQUEST_HASH);
-            lb.insert("requestHash", REQUEST_HASH);
+            lb.insert("__parent", PARENT_REQUEST_HASH);
+            lb.insert("__request", REQUEST_HASH);
             lb.insert("message", stream.m_oss.str());
             stringstream slog;
             slog << lb;
