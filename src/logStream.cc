@@ -71,7 +71,7 @@ LogBlob::~LogBlob()
 
 void LogBlob::clean()
 {
-    map<string, LogBlob* >::iterator i = m_Blob.begin();
+    unordered_map<string, LogBlob* >::iterator i = m_Blob.begin();
     for (;i != m_Blob.end();i++) {
         if (i->second) delete i->second; // should cascade down complex LogBlob maps
     }
@@ -81,7 +81,7 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
 {
     clean();
 
-    map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
+    unordered_map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
     for (;i != r.m_Blob.end();i++) {
         m_Blob[i->first] = new LogBlob(*(i->second));
     }
@@ -99,7 +99,7 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 {
     if (rBlob.m_Blob.size()) {
         ros << "{";
-            map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
+            unordered_map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
             for (;i != rBlob.m_Blob.end();i++) {
                 if (i != rBlob.m_Blob.begin()) {
                     ros << ",";

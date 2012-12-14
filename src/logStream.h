@@ -8,7 +8,7 @@
 #include <syslog.h>
 #include <typeinfo>
 #include <vector>
-#include <map>
+#include <tr1/unordered_map>
 #include <iterator>
 
 #include <sys/types.h>
@@ -19,6 +19,7 @@
 #include "node.h"
 
 using namespace std;
+using namespace std::tr1;
 using namespace v8;
 
 
@@ -46,7 +47,7 @@ public:
     const LogBlob& operator=(const LogBlob &r);
     friend ostream& operator<<(ostream& ros, const LogBlob &rBlob);
 
-    map<string, LogBlob* > m_Blob;
+    unordered_map<string, LogBlob* > m_Blob;
     int m_iVal;
     double m_dVal;
     string m_sVal;
