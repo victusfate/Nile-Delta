@@ -130,7 +130,8 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
             emsg << "ERROR LogBlob unhandled Blob value type " << rBlob.m_Type;
             syslog(LOG_DEBUG,"%s",emsg.str().c_str());                
             std::cout << emsg.str() << std::endl;
-            ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));    
+            ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));
+            return ros;
         }
     }
 
