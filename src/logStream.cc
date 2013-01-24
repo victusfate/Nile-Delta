@@ -3,6 +3,7 @@
 
 string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
+string THREAD_HASH;
 
 
 LogBlob::LogBlob(const int &val) : m_Type(LBINT) {
