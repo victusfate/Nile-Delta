@@ -22,7 +22,7 @@ using namespace std;
 using namespace std::tr1;
 using namespace v8;
 
-const bool VERBOSE_LOGGING = false;
+const bool VERBOSE_LOGGING = true;
 
 enum LogBlobType { LBMAP, LBINT, LBDOUBLE, LBSTRING };
 
