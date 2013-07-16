@@ -6,6 +6,8 @@ string REQUEST_HASH;
 string THREAD_HASH;
 
 
+LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
+
 LogBlob::LogBlob(const int &val) : m_Type(LBINT) {
     m_iVal = val;
 }
@@ -125,6 +127,9 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
         }
         else if (rBlob.m_Type == LBSTRING) {
             ros << rBlob.m_sVal;
+        }
+        else if (rBlob.m_Type == LBUNDEFINED) {
+            ros << "LBUNDEFINED";
         }
         else {
             stringstream emsg;

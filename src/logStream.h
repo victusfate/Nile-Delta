@@ -24,10 +24,11 @@ using namespace v8;
 
 const bool VERBOSE_LOGGING = false;
 
-enum LogBlobType { LBMAP, LBINT, LBDOUBLE, LBSTRING };
+enum LogBlobType { LBMAP, LBINT, LBDOUBLE, LBSTRING, LBUNDEFINED };
 
 class LogBlob {
 public:
+    LogBlob();
     LogBlob(const int &val);
     LogBlob(const double &val);
     LogBlob(const string &val);
