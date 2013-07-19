@@ -80,6 +80,27 @@ void LogBlob::clean()
     }
 }
 
+const LogBlob& LogBlob::operator=(int r)
+{
+    m_Type = LBINT;
+    m_iVal = r;
+    return *this; 
+}
+
+const LogBlob& LogBlob::operator=(double r)
+{
+    m_Type = LBDOUBLE;
+    m_dVal = r;
+    return *this; 
+}
+
+const LogBlob& LogBlob::operator=(const string &r)
+{
+    m_Type = LBSTRING;
+    m_sVal = r;
+    return *this;
+}
+
 const LogBlob& LogBlob::operator=(const LogBlob &r)
 {
     clean();
@@ -143,6 +164,28 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 
     return ros;
 }
+
+const LogBlob& LogBlob::operator[](const string &key) const
+{
+    unordered_map<string, LogBlob* >::const_iterator i = m_Blob.find(key);
+    if (i == m_Blob.end()) {
+        stringstream err;
+        err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
+        throw err.str();
+    }
+    return *(i->second);
+}
+
+LogBlob& LogBlob::operator[](const string &key)
+{
+    unordered_map<string, LogBlob* >::iterator i = m_Blob.find(key);
+    if (i == m_Blob.end()) {
+        insert(key, LogBlob());
+        return *(m_Blob[key]);
+    }
+    return *(i->second);
+}
+
 
 
 string RunTime::TimeFormat(const double NumSeconds) const

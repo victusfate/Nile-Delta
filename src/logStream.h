@@ -46,8 +46,15 @@ public:
     void insert(const string &key, const string &val);
     void insert(const string &key, const LogBlob &val);
 
+    const LogBlob& operator=(int r);
+    const LogBlob& operator=(double r);
+    const LogBlob& operator=(const string &r);
     const LogBlob& operator=(const LogBlob &r);
     friend ostream& operator<<(ostream& ros, const LogBlob &rBlob);
+
+    const LogBlob& operator[](const string &key) const;
+    LogBlob& operator[](const string &key);
+
 
     unordered_map<string, LogBlob* > m_Blob;
     int m_iVal;
