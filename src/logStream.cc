@@ -66,6 +66,27 @@ void LogBlob::insert(const string &key, const LogBlob &val)
 
 }
 
+void LogBlob::push(const LogBlob &val)
+{
+    if (m_Type != LBARRAY) {
+        clean();
+        m_Type = LBARRAY;
+        m_BlobArray.resize(0);
+        m_BlobArray.push_back(new LogBlob(val));
+    }
+    else {
+        m_BlobArray.push_back(new LogBlob(val));
+    }
+}
+
+unsigned long LogBlob::length()
+{
+    if (m_Type == LBMAP) return m_Blob.size();
+    else if (m_Type == LBARRAY) return m_BlobArray.size();
+
+    return 1;
+}
+
 
 LogBlob::~LogBlob()
 {
@@ -76,7 +97,10 @@ void LogBlob::clean()
 {
     unordered_map<string, LogBlob* >::iterator i = m_Blob.begin();
     for (;i != m_Blob.end();i++) {
-        if (i->second) delete i->second; // should cascade down complex LogBlob maps
+        if (i->second) delete i->second; // cascades down complex LogBlob maps
+    }
+    for (unsigned long j=0;j < m_BlobArray.size();j++) {
+        if (m_BlobArray[j]) delete m_BlobArray[j]; // cascades down complex LogBlob arrays
     }
 }
 
@@ -105,10 +129,19 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
 {
     clean();
 
-    unordered_map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
-    for (;i != r.m_Blob.end();i++) {
-        m_Blob[i->first] = new LogBlob(*(i->second));
+    if (r.m_Type == LBMAP) {
+        unordered_map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
+        for (;i != r.m_Blob.end();i++) {
+            m_Blob[i->first] = new LogBlob(*(i->second));
+        }
     }
+    else if (r.m_Type == LBARRAY) {
+        m_BlobArray.resize(r.m_BlobArray.size());
+        for (unsigned long i=0;i < r.m_BlobArray.size();i++) {
+            m_BlobArray[i] = new LogBlob(*(r.m_BlobArray[i]));
+        }
+    }
+
     m_iVal = r.m_iVal;
     m_dVal = r.m_dVal;
     m_sVal = r.m_sVal;

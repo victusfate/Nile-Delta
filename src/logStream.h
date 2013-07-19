@@ -24,7 +24,7 @@ using namespace v8;
 
 const bool VERBOSE_LOGGING = false;
 
-enum LogBlobType { LBMAP, LBINT, LBDOUBLE, LBSTRING, LBUNDEFINED };
+enum LogBlobType { LBMAP, LBARRAY, LBINT, LBDOUBLE, LBSTRING, LBUNDEFINED };
 
 class LogBlob {
 public:
@@ -45,6 +45,8 @@ public:
     void insert(const string &key, const double &val);
     void insert(const string &key, const string &val);
     void insert(const string &key, const LogBlob &val);
+    void push(const LogBlob &val);
+    unsigned long length();
 
     const LogBlob& operator=(int r);
     const LogBlob& operator=(double r);
@@ -56,7 +58,8 @@ public:
     LogBlob& operator[](const string &key);
 
 
-    unordered_map<string, LogBlob* > m_Blob;
+    unordered_map<string, LogBlob* >    m_Blob;
+    vector<LogBlob *>                   m_BlobArray;
     int m_iVal;
     double m_dVal;
     string m_sVal;
