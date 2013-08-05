@@ -190,7 +190,8 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
             emsg << "ERROR LogBlob unhandled Blob value type " << rBlob.m_Type;
             syslog(LOG_DEBUG,"%s",emsg.str().c_str());                
             std::cout << emsg.str() << std::endl;
-            ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));
+            exit(1);
+            // ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));
             return ros;
         }
     }
@@ -204,7 +205,8 @@ const LogBlob& LogBlob::operator[](const string &key) const
     if (i == m_Blob.end()) {
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
-        throw err.str();
+        exit(1);
+        // throw err.str(); // getting fucked up exceptions disabled while building, temporary
     }
     return *(i->second);
 }
