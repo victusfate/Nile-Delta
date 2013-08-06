@@ -1,6 +1,7 @@
 #ifndef LOG_STREAM_H
 #define LOG_STREAM_H
 
+#include <cstdlib>
 #include <cstdio>
 #include <string>
 #include <iostream>
