@@ -103,7 +103,8 @@ class LogStream
             return *this; 
         }
 
-        LogStream& operator+(const LogBlob &rhs) {
+        LogStream& setObject(const LogBlob &rhs) {
+            m_objects.resize(0);
             m_objects.push_back(&rhs);
             return *this; 
         }
@@ -117,18 +118,19 @@ class LogStream
         }        
         
         
-        static LogStream& endl(LogStream& stream) {
-
-            LogBlob lb("action",stream.m_action);
+        static LogStream& endl(LogStream& stream) 
+        {
+            LogBlob lb;
+            if (stream.m_objects.size()) lb = *(stream.m_objects[0]);
+            lb.insert("action",stream.m_action);
             lb.insert("__p", PARENT_REQUEST_HASH);
             lb.insert("__r", REQUEST_HASH);
             lb.insert("__t", THREAD_HASH);
-            lb.insert("message", stream.m_oss.str());
+            if (stream.m_oss.str().length()) lb.insert("message", stream.m_oss.str());
+
             stringstream slog;
             slog << lb;
-            for (unsigned long i=0;i < stream.m_objects.size();i++) {
-                slog << "," << *(stream.m_objects[i]);
-            }
+
             syslog(stream.m_logType,"%s",slog.str().c_str());  
             if (uv_guess_handle(1) == UV_TTY) {              
                 std::cout << slog.str() << std::endl << std::endl;
