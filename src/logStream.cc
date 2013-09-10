@@ -4,6 +4,7 @@
 string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
 string THREAD_HASH;
+string BUILD_TYPE;
 
 
 LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
