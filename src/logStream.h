@@ -94,8 +94,11 @@ class LogStream
         void setLog(int logType) { m_logType = logType; }
         void reset() { m_oss.str(""); }
         
-        void setAction(const string &action) {
+        string setAction(const string &action) 
+        {
+            string oldAction = m_action;
             m_action = action;
+            return oldAction;
         }
 
         template<typename T> 
