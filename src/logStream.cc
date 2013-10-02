@@ -5,15 +5,15 @@ string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
 string THREAD_HASH;
 string BUILD_TYPE;
-uint64_t USER_ID;
-uint64_t MONTAGE_ID;
-uint64_t BUILD_ID;
+int64_t USER_ID;
+int64_t MONTAGE_ID;
+int64_t BUILD_ID;
 
 
 
 LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
 
-LogBlob::LogBlob(uint64_t val) : m_Type(LBINT64) {
+LogBlob::LogBlob(int64_t val) : m_Type(LBINT64) {
     m_iVal = val;
 }
 
@@ -29,7 +29,7 @@ LogBlob::LogBlob(const LogBlob &val) {
     *this = val;
 }
 
-LogBlob::LogBlob(const string &key, uint64_t val) {
+LogBlob::LogBlob(const string &key, int64_t val) {
     insert(key,val);
 }
 
@@ -46,7 +46,7 @@ LogBlob::LogBlob(const string &key, const LogBlob &val) {
 }
 
 
-void LogBlob::insert(const string &key, uint64_t val)
+void LogBlob::insert(const string &key, int64_t val)
 {
     m_Type = LBMAP;
     m_Blob[key] = new LogBlob(val);   
@@ -109,7 +109,7 @@ void LogBlob::clean()
     }
 }
 
-const LogBlob& LogBlob::operator=(uint64_t r)
+const LogBlob& LogBlob::operator=(int64_t r)
 {
     m_Type = LBINT64;
     m_iVal = r;

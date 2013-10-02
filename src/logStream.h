@@ -30,11 +30,11 @@ enum LogBlobType { LBMAP, LBARRAY, LBINT64, LBDOUBLE, LBSTRING, LBUNDEFINED };
 class LogBlob {
 public:
     LogBlob();
-    LogBlob(uint64_t val);
+    LogBlob(int64_t val);
     LogBlob(double   val);
     LogBlob(const string  &val);
     LogBlob(const LogBlob &val);
-    LogBlob(const string &key, uint64_t val);
+    LogBlob(const string &key, int64_t val);
     LogBlob(const string &key, double   val);
     LogBlob(const string &key, const string &val);
     LogBlob(const string &key, const LogBlob &val);
@@ -42,14 +42,14 @@ public:
     virtual ~LogBlob();
     void clean();
 
-    void insert(const string &key, uint64_t val);
+    void insert(const string &key, int64_t val);
     void insert(const string &key, double   val);
     void insert(const string &key, const string &val);
     void insert(const string &key, const LogBlob &val);
     void push(const LogBlob &val);
     unsigned long length();
 
-    const LogBlob& operator=(uint64_t r);
+    const LogBlob& operator=(int64_t r);
     const LogBlob& operator=(double r);
     const LogBlob& operator=(const string &r);
     const LogBlob& operator=(const LogBlob &r);
@@ -61,9 +61,9 @@ public:
 
     unordered_map<string, LogBlob* >    m_Blob;
     vector<LogBlob *>                   m_BlobArray;
-    uint64_t m_iVal;
-    double m_dVal;
-    string m_sVal;
+    int64_t m_iVal;
+    double  m_dVal;
+    string  m_sVal;
     LogBlobType m_Type;
 };
 
@@ -72,9 +72,9 @@ extern string PARENT_REQUEST_HASH;
 extern string REQUEST_HASH;
 extern string THREAD_HASH;
 extern string BUILD_TYPE;
-extern uint64_t USER_ID;
-extern uint64_t MONTAGE_ID;
-extern uint64_t BUILD_ID;
+extern int64_t USER_ID;
+extern int64_t MONTAGE_ID;
+extern int64_t BUILD_ID;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
