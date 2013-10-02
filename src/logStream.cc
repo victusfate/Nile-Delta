@@ -5,19 +5,19 @@ string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
 string THREAD_HASH;
 string BUILD_TYPE;
-string USER_ID;
-string MONTAGE_ID;
-string BUILD_ID;
+uint64_t USER_ID;
+uint64_t MONTAGE_ID;
+uint64_t BUILD_ID;
 
 
 
 LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
 
-LogBlob::LogBlob(const int &val) : m_Type(LBINT) {
+LogBlob::LogBlob(uint64_t val) : m_Type(LBINT64) {
     m_iVal = val;
 }
 
-LogBlob::LogBlob(const double &val) : m_Type(LBDOUBLE) {
+LogBlob::LogBlob(double val) : m_Type(LBDOUBLE) {
     m_dVal = val;
 }
 
@@ -29,11 +29,11 @@ LogBlob::LogBlob(const LogBlob &val) {
     *this = val;
 }
 
-LogBlob::LogBlob(const string &key, const int &val) {
+LogBlob::LogBlob(const string &key, uint64_t val) {
     insert(key,val);
 }
 
-LogBlob::LogBlob(const string &key, const double &val) {
+LogBlob::LogBlob(const string &key, double val) {
     insert(key,val);
 }
 
@@ -46,13 +46,13 @@ LogBlob::LogBlob(const string &key, const LogBlob &val) {
 }
 
 
-void LogBlob::insert(const string &key, const int &val)
+void LogBlob::insert(const string &key, uint64_t val)
 {
     m_Type = LBMAP;
     m_Blob[key] = new LogBlob(val);   
 }
 
-void LogBlob::insert(const string &key, const double &val)
+void LogBlob::insert(const string &key, double val)
 {
     m_Type = LBMAP;
     m_Blob[key] = new LogBlob(val);   
@@ -109,9 +109,9 @@ void LogBlob::clean()
     }
 }
 
-const LogBlob& LogBlob::operator=(int r)
+const LogBlob& LogBlob::operator=(uint64_t r)
 {
-    m_Type = LBINT;
+    m_Type = LBINT64;
     m_iVal = r;
     return *this; 
 }
@@ -172,20 +172,20 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
                     ros << *(i->second);
                 }
                 else {
-                    ros << "\"" << *(i->second) << "\"";
+                    ros << *(i->second);
                 }
             }
         ros << "}";
     }
     else {
-        if (rBlob.m_Type == LBINT) {
+        if (rBlob.m_Type == LBINT64) {
             ros << rBlob.m_iVal;    
         }
         else if (rBlob.m_Type == LBDOUBLE) {
             ros << rBlob.m_dVal;
         }
         else if (rBlob.m_Type == LBSTRING) {
-            ros << rBlob.m_sVal;
+            ros << "\"" <<rBlob.m_sVal << "\"";
         }
         else if (rBlob.m_Type == LBUNDEFINED) {
             ros << "LBUNDEFINED";
