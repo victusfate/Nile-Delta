@@ -72,6 +72,9 @@ extern string PARENT_REQUEST_HASH;
 extern string REQUEST_HASH;
 extern string THREAD_HASH;
 extern string BUILD_TYPE;
+extern string USER_ID;
+extern string MONTAGE_ID;
+extern string BUILD_ID;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -131,6 +134,9 @@ class LogStream
             lb.insert("__r", REQUEST_HASH);
             lb.insert("__t", THREAD_HASH);
             lb.insert("buildType", BUILD_TYPE);
+            lb.insert("__u", USER_ID);
+            lb.insert("__m", MONTAGE_ID);
+            lb.insert("__b", BUILD_ID);
             if (stream.m_oss.str().length()) lb.insert("message", stream.m_oss.str());
 
             stringstream slog;

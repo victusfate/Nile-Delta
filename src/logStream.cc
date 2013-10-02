@@ -5,6 +5,10 @@ string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
 string THREAD_HASH;
 string BUILD_TYPE;
+string USER_ID;
+string MONTAGE_ID;
+string BUILD_ID;
+
 
 
 LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
