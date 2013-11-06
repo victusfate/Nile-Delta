@@ -23,23 +23,7 @@
 
           }
         }]
-      ],         
-      'conditions': [
-        ['OS=="win"', {
-          'libraries': [
-          ],
-          'include_dirs': [
-          ],
-          'defines': [
-            'snprintf=_snprintf',
-            '_USE_MATH_DEFINES'  # for M_PI
-          ]
-        }, 
-        {  # 'OS!="win"'
-          'libraries': [
-          ],
-        }]
-      ]
+      ]         
     }
   ]
 }
