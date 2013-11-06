@@ -9,11 +9,6 @@
 #include <syslog.h>
 #include <typeinfo>
 #include <vector>
-// #ifdef __APPLE__
-// #include <unordered_map>
-// #else
-#include <tr1/unordered_map>
-// #endif
 #include <iterator>
 
 #include <sys/types.h>
@@ -24,7 +19,14 @@
 #include "node.h"
 
 using namespace std;
+
+#ifdef __APPLE__
+#include <unordered_map>
+#else
+#include <tr1/unordered_map>
 using namespace std::tr1;
+#endif
+
 using namespace v8;
 
 const bool VERBOSE_LOGGING = false;
