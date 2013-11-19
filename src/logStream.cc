@@ -177,6 +177,16 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
             }
         ros << "}";
     }
+    else if (rBlob.m_BlobArray.size()) {
+        ros << "[";
+            for (size_t i=0;i < rBlob.m_BlobArray.size();i++) {
+                if (i) {
+                    ros << ",";
+                }                
+                ros << *(rBlob.m_BlobArray[i]);
+            }
+        ros << "]";        
+    }
     else {
         if (rBlob.m_Type == LBINT64) {
             ros << rBlob.m_iVal;    
