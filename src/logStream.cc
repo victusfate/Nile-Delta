@@ -159,7 +159,7 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
 
 ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 {
-    if (rBlob.m_Blob.size()) {
+    if (rBlob.m_Type == LBMAP) {
         ros << "{";
             unordered_map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
             for (;i != rBlob.m_Blob.end();i++) {
@@ -177,7 +177,7 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
             }
         ros << "}";
     }
-    else if (rBlob.m_BlobArray.size()) {
+    else if (rBlob.m_Type == LBARRAY) {
         ros << "[";
             for (size_t i=0;i < rBlob.m_BlobArray.size();i++) {
                 if (i) {
