@@ -29,7 +29,7 @@ using namespace std::tr1;
 
 using namespace v8;
 
-const bool VERBOSE_LOGGING = false;
+const bool VERBOSE_LOGGING = true;
 
 enum LogBlobType { LBMAP, LBARRAY, LBINT64, LBDOUBLE, LBSTRING, LBUNDEFINED };
 
@@ -63,6 +63,9 @@ public:
 
     const LogBlob& operator[](const string &key) const;
     LogBlob& operator[](const string &key);
+    const LogBlob& operator[](size_t index) const;
+    LogBlob& operator[](size_t index);
+
 
 
     unordered_map<string, LogBlob* >    m_Blob;

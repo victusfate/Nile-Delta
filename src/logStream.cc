@@ -220,6 +220,7 @@ const LogBlob& LogBlob::operator[](const string &key) const
     if (i == m_Blob.end()) {
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
         exit(1);
         // throw err.str(); // getting fucked up exceptions disabled while building, temporary
     }
@@ -234,6 +235,28 @@ LogBlob& LogBlob::operator[](const string &key)
         return *(m_Blob[key]);
     }
     return *(i->second);
+}
+
+const LogBlob& LogBlob::operator[](size_t index) const
+{
+    if (index >= m_BlobArray.size()) {
+        stringstream err;
+        err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
+        exit(1);
+    }
+    return *(m_BlobArray[index]);
+}
+
+LogBlob& LogBlob::operator[](size_t index)
+{
+    if (index >= m_BlobArray.size()) {
+        stringstream err;
+        err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
+        exit(1);
+    }
+    return *(m_BlobArray[index]);
 }
 
 
