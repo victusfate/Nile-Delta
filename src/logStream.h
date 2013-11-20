@@ -66,7 +66,9 @@ public:
     const LogBlob& operator[](size_t index) const;
     LogBlob& operator[](size_t index);
 
-
+    int64_t toInt64() const;
+    double  toDouble() const;
+    string  toString() const;
 
     unordered_map<string, LogBlob* >    m_Blob;
     vector<LogBlob *>                   m_BlobArray;

@@ -259,6 +259,38 @@ LogBlob& LogBlob::operator[](size_t index)
     return *(m_BlobArray[index]);
 }
 
+int64_t LogBlob::toInt64() const
+{
+    if (m_Type != LBINT64) {
+        stringstream err;
+        err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBINT64, type(" << m_Type << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
+        exit(1);
+    }
+    return m_iVal;
+}
+
+double  LogBlob::toDouble() const
+{
+    if (m_Type != LBDOUBLE) {
+        stringstream err;
+        err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
+        exit(1);
+    }
+    return m_dVal;    
+}
+
+string  LogBlob::toString() const
+{
+    if (m_Type != LBSTRING) {
+        stringstream err;
+        err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBSTRING, type(" << m_Type << ") LogBlob: " << *this; 
+        cout << err.str() << endl;
+        exit(1);
+    }
+    return m_sVal;
+}
 
 
 string RunTime::TimeFormat(const double NumSeconds) const
