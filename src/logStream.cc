@@ -231,6 +231,16 @@ LogBlob& LogBlob::operator[](const string &key)
 {
     unordered_map<string, LogBlob* >::iterator i = m_Blob.find(key);
     if (i == m_Blob.end()) {
+
+        string rString = key;
+        rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );
+
+        if (key != rString) {
+            stringstream err;
+            err << "LogBlob::operator[], ERROR: unable to insert invalid, key(" << key << ") LogBlob: " << *this; 
+            cout << err.str() << endl;
+            exit(1);
+        }   
         insert(key, LogBlob());
         return *(m_Blob[key]);
     }
@@ -261,35 +271,50 @@ LogBlob& LogBlob::operator[](size_t index)
 
 int64_t LogBlob::toInt64() const
 {
-    if (m_Type != LBINT64) {
+    if (m_Type != LBDOUBLE && m_Type != LBINT64) {
         stringstream err;
         err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBINT64, type(" << m_Type << ") LogBlob: " << *this; 
         cout << err.str() << endl;
         exit(1);
+    }
+    if (m_Type == LBDOUBLE) {
+        return m_dVal;
     }
     return m_iVal;
 }
 
 double  LogBlob::toDouble() const
 {
-    if (m_Type != LBDOUBLE) {
+    if (m_Type != LBDOUBLE && m_Type != LBINT64) {
         stringstream err;
-        err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
+        err << "LogBlob::toDouble const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
         cout << err.str() << endl;
         exit(1);
+    }
+    if (m_Type == LBINT64) {
+        return m_iVal;
     }
     return m_dVal;    
 }
 
 string  LogBlob::toString() const
 {
-    if (m_Type != LBSTRING) {
-        stringstream err;
-        err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBSTRING, type(" << m_Type << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        exit(1);
+    if (m_Type == LBSTRING) {
+        string rString = m_sVal;
+        rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );        
+        return rString;
     }
-    return m_sVal;
+
+    stringstream ostr;
+    ostr << *this;
+
+    // if (m_Type != LBSTRING) {
+    //     stringstream err;
+    //     err << "LogBlob::toString const, ERROR: LogBlob not type LBSTRING, type(" << m_Type << ") LogBlob: " << *this; 
+    //     cout << err.str() << endl;
+    //     exit(1);
+    // }
+    return ostr.str();
 }
 
 

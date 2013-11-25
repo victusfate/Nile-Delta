@@ -15,7 +15,6 @@
 #include <sys/time.h>
 
 
-#include "v8.h"
 #include "node.h"
 
 using namespace std;
@@ -26,8 +25,6 @@ using namespace std;
 #include <tr1/unordered_map>
 using namespace std::tr1;
 #endif
-
-using namespace v8;
 
 const bool VERBOSE_LOGGING = true;
 
@@ -69,6 +66,8 @@ public:
     int64_t toInt64() const;
     double  toDouble() const;
     string  toString() const;
+
+    bool exists() const { return (m_Type != LBUNDEFINED) && ( m_sVal != string("(null)") ); };
 
     unordered_map<string, LogBlob* >    m_Blob;
     vector<LogBlob *>                   m_BlobArray;
