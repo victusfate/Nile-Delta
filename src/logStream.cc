@@ -288,7 +288,8 @@ int64_t LogBlob::toInt64() const
 
 double  LogBlob::toDouble() const
 {
-    if (m_Type != LBDOUBLE && m_Type != LBINT64) {
+    if (m_Type == LBSTRING && m_sVal == "") return (double)0;
+    else if (m_Type != LBDOUBLE && m_Type != LBINT64) {
         stringstream err;
         err << "LogBlob::toDouble const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
         cout << err.str() << endl;
