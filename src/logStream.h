@@ -85,6 +85,8 @@ extern string BUILD_TYPE;
 extern int64_t USER_ID;
 extern int64_t MONTAGE_ID;
 extern int64_t BUILD_ID;
+extern mutex   LOG_IO;
+extern mutex   DEBUG_IO;
 
 // syslog(LOG_EMERG,"This is an emergency message\n")); 
 // syslog(LOG_ALERT,"This is an alert message\n"); 
@@ -151,10 +153,14 @@ class LogStream
 
             stringstream slog;
             slog << lb;
-
+            LOG_IO.lock();
             syslog(stream.m_logType,"%s",slog.str().c_str());  
+            LOG_IO.unlock();
+
             if (uv_guess_handle(1) == UV_TTY) {              
+                DEBUG_IO.lock();
                 std::cout << slog.str() << std::endl << std::endl;
+                DEBUG_IO.unlock();
             }
             stream.m_oss.str("");
             stream.m_objects.resize(0);
