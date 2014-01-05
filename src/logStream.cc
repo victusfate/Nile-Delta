@@ -12,6 +12,9 @@ mutex LOG_IO;
 mutex DEBUG_IO;
 
 
+bool isDoubleQuote(char c) {
+    return c == '"';
+}
 
 
 LogBlob::LogBlob() : m_Type(LBUNDEFINED) {}
@@ -236,10 +239,11 @@ LogBlob& LogBlob::operator[](const string &key)
     if (i == m_Blob.end()) {
 
         string rString = key;
-        // rString.erase( find( rString.begin(), rString.end(), '"') );
+        rString.erase( remove_if( rString.begin(), rString.end(), isDoubleQuote), rString.end() );
+        // linux bitched about the below
         // rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );
-        regex dQuoteReplace("\"");
-        rString = regex_replace(rString,dQuoteReplace,"");
+        // regex dQuoteReplace("\"");
+        // rString = regex_replace(rString,dQuoteReplace,"");
 
         if (key != rString) {
             stringstream err;
