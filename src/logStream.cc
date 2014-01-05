@@ -1,5 +1,5 @@
 #include "logStream.h"
-
+#include <regex>
 
 string PARENT_REQUEST_HASH;
 string REQUEST_HASH;
@@ -235,8 +235,17 @@ LogBlob& LogBlob::operator[](const string &key)
     unordered_map<string, LogBlob* >::iterator i = m_Blob.find(key);
     if (i == m_Blob.end()) {
 
+        string test = "\"blahbhbahbha\"";
+        cout << "test: " << test << endl;
+        regex dQuoteReplace("\"");
+        test = regex_replace(test,dQuoteReplace,"");
+        cout << "after: " << test << endl;
+
+
         string rString = key;
-        rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );
+        // rString.erase( find( rString.begin(), rString.end(), '"') );
+        // rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );
+        rString = regex_replace(rString,dQuoteReplace,"");
 
         if (key != rString) {
             stringstream err;
