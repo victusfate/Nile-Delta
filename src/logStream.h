@@ -27,7 +27,7 @@ using namespace std;
 using namespace std::tr1;
 #endif
 
-const bool VERBOSE_LOGGING = false;
+const bool VERBOSE_LOGGING = true;
 
 enum LogBlobType { LBMAP, LBARRAY, LBINT64, LBDOUBLE, LBSTRING, LBUNDEFINED };
 
