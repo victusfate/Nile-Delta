@@ -20,12 +20,14 @@
 
 using namespace std;
 
-#ifdef __APPLE__
 #include <unordered_map>
-#else
-#include <tr1/unordered_map>
-using namespace std::tr1;
-#endif
+
+// #ifdef __APPLE__
+// #include <unordered_map>
+// #else
+// #include <tr1/unordered_map>
+// using namespace std::tr1;
+// #endif
 
 const bool VERBOSE_LOGGING = false;
 
