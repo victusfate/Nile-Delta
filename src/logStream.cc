@@ -11,7 +11,6 @@ int64_t BUILD_ID;
 mutex LOG_IO;
 mutex DEBUG_IO;
 
-
 bool isDoubleQuote(char c) {
     return c == '"';
 }
@@ -82,11 +81,15 @@ void LogBlob::push(const LogBlob &val)
     if (m_Type != LBARRAY) {
         clean();
         m_Type = LBARRAY;
+        m_ITERATOR_MUTEX.lock();
         m_BlobArray.resize(0);
         m_BlobArray.push_back(new LogBlob(val));
+        m_ITERATOR_MUTEX.unlock();
     }
     else {
+        m_ITERATOR_MUTEX.lock();
         m_BlobArray.push_back(new LogBlob(val));
+        m_ITERATOR_MUTEX.unlock();
     }
 }
 
@@ -106,10 +109,13 @@ LogBlob::~LogBlob()
 
 void LogBlob::clean()
 {
+    m_ITERATOR_MUTEX.lock();
     unordered_map<string, LogBlob* >::iterator i = m_Blob.begin();
     for (;i != m_Blob.end();i++) {
         if (i->second) delete i->second; // cascades down complex LogBlob maps
     }
+    m_ITERATOR_MUTEX.unlock();
+
     for (unsigned long j=0;j < m_BlobArray.size();j++) {
         if (m_BlobArray[j]) delete m_BlobArray[j]; // cascades down complex LogBlob arrays
     }
@@ -141,16 +147,22 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
     clean();
 
     if (r.m_Type == LBMAP) {
+        // lock mutex over iterated blob
+        r.m_ITERATOR_MUTEX.lock();
         unordered_map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
         for (;i != r.m_Blob.end();i++) {
             m_Blob[i->first] = new LogBlob(*(i->second));
         }
+        r.m_ITERATOR_MUTEX.unlock();
     }
     else if (r.m_Type == LBARRAY) {
         m_BlobArray.resize(r.m_BlobArray.size());
+        // can't lock around a lock in the right blob
+//        r.m_ITERATOR_MUTEX.lock();
         for (unsigned long i=0;i < r.m_BlobArray.size();i++) {
             m_BlobArray[i] = new LogBlob(*(r.m_BlobArray[i]));
         }
+//        r.m_ITERATOR_MUTEX.unlock();
     }
 
     m_iVal = r.m_iVal;
@@ -167,6 +179,7 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 {
     if (rBlob.m_Type == LBMAP) {
         ros << "{";
+            rBlob.m_ITERATOR_MUTEX.lock();
             unordered_map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
             for (;i != rBlob.m_Blob.end();i++) {
                 if (i != rBlob.m_Blob.begin()) {
@@ -181,6 +194,8 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
                     ros << *(i->second);
                 }
             }
+            rBlob.m_ITERATOR_MUTEX.unlock();
+
         ros << "}";
     }
     else if (rBlob.m_Type == LBARRAY) {
@@ -222,21 +237,33 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 
 const LogBlob& LogBlob::operator[](const string &key) const
 {
+    LogBlob *pBlob = NULL;
+    m_ITERATOR_MUTEX.lock();
     unordered_map<string, LogBlob* >::const_iterator i = m_Blob.find(key);
-    if (i == m_Blob.end()) {
+    if (i != m_Blob.end()) {
+        pBlob = i->second;
+    }
+    m_ITERATOR_MUTEX.unlock();
+    if (pBlob == NULL) {
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
         cout << err.str() << endl;
         exit(1);
         // throw err.str(); // getting fucked up exceptions disabled while building, temporary
     }
-    return *(i->second);
+    return *(pBlob);
 }
 
 LogBlob& LogBlob::operator[](const string &key)
 {
+    LogBlob *pBlob = NULL;
+    m_ITERATOR_MUTEX.lock();
     unordered_map<string, LogBlob* >::iterator i = m_Blob.find(key);
-    if (i == m_Blob.end()) {
+    if (i != m_Blob.end()) {
+        pBlob = i->second;
+    }
+    m_ITERATOR_MUTEX.unlock();
+    if (pBlob == NULL) {
 
         string rString = key;
         rString.erase( remove_if( rString.begin(), rString.end(), isDoubleQuote), rString.end() );
@@ -252,9 +279,23 @@ LogBlob& LogBlob::operator[](const string &key)
             exit(1);
         }   
         insert(key, LogBlob());
-        return *(m_Blob[key]);
+        // could have another version of insert that returns a reference to the inserted logblob if needed
+        LogBlob *pBlob2 = NULL;
+        m_ITERATOR_MUTEX.lock();
+        unordered_map<string, LogBlob* >::iterator j = m_Blob.find(key);
+        if (j != m_Blob.end()) {
+            pBlob2 = j->second;
+        }
+        m_ITERATOR_MUTEX.unlock();
+        if (pBlob2 == NULL) {
+            stringstream err;
+            err << "LogBlob::operator[], ERROR: INCONCEIVABLE! unable to find key(" << key << ") we just inserted into LogBlob: " << *this; 
+            cout << err.str() << endl;
+            exit(1);            
+        }
+        return *(pBlob2);
     }
-    return *(i->second);
+    return *(pBlob);
 }
 
 const LogBlob& LogBlob::operator[](size_t index) const
@@ -265,6 +306,12 @@ const LogBlob& LogBlob::operator[](size_t index) const
         cout << err.str() << endl;
         exit(1);
     }
+    // no need to make a critical region, operator[] is considered thread safe for vectors
+    // LogBlob *pBlob = NULL;
+    // m_ITERATOR_MUTEX.lock();
+    // pBlob = m_BlobArray[index];
+    // m_ITERATOR_MUTEX.unlock();
+    // return *(pBlob);
     return *(m_BlobArray[index]);
 }
 
@@ -276,6 +323,14 @@ LogBlob& LogBlob::operator[](size_t index)
         cout << err.str() << endl;
         exit(1);
     }
+
+    // no need to make a critical region, operator[] is considered thread safe for vectors
+    // LogBlob *pBlob = NULL;
+    // m_ITERATOR_MUTEX.lock();
+    // pBlob = m_BlobArray[index];
+    // m_ITERATOR_MUTEX.unlock();
+    // return *(pBlob);
+
     return *(m_BlobArray[index]);
 }
 

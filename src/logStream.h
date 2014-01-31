@@ -78,6 +78,7 @@ public:
     double  m_dVal;
     string  m_sVal;
     LogBlobType m_Type;
+    mutable mutex m_ITERATOR_MUTEX;
 };
 
 // make sure these are available to any modules that utilize Nile-Delta
