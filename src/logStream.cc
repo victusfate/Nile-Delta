@@ -8,6 +8,7 @@ string BUILD_TYPE;
 int64_t USER_ID;
 int64_t MONTAGE_ID;
 int64_t BUILD_ID;
+int64_t NTHREADS;
 mutex LOG_IO;
 mutex DEBUG_IO;
 

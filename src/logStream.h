@@ -89,6 +89,7 @@ extern string BUILD_TYPE;
 extern int64_t USER_ID;
 extern int64_t MONTAGE_ID;
 extern int64_t BUILD_ID;
+extern int64_t NTHREADS;
 extern mutex   LOG_IO;
 extern mutex   DEBUG_IO;
 
@@ -153,6 +154,7 @@ class LogStream
             lb.insert("__u", USER_ID);
             lb.insert("__m", MONTAGE_ID);
             lb.insert("__b", BUILD_ID);
+            lb.insert("__nthreads", NTHREADS);
             if (stream.m_oss.str().length()) lb.insert("message", stream.m_oss.str());
 
             stringstream slog;
