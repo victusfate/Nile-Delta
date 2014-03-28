@@ -12,6 +12,16 @@ int64_t NTHREADS;
 mutex LOG_IO;
 mutex DEBUG_IO;
 
+void logStreamError(const string &action,const string &emsg)
+{
+    DEBUG_IO.lock();
+    LogStream mout(LOG_ERR,action.c_str());
+    mout << emsg << LogStream::endl;
+    DEBUG_IO.unlock();
+    exit(1); 
+}
+
+
 bool isDoubleQuote(char c) {
     return c == '"';
 }
@@ -159,11 +169,9 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
     else if (r.m_Type == LBARRAY) {
         m_BlobArray.resize(r.m_BlobArray.size());
         // can't lock around a lock in the right blob
-//        r.m_ITERATOR_MUTEX.lock();
         for (unsigned long i=0;i < r.m_BlobArray.size();i++) {
             m_BlobArray[i] = new LogBlob(*(r.m_BlobArray[i]));
         }
-//        r.m_ITERATOR_MUTEX.unlock();
     }
 
     m_iVal = r.m_iVal;
@@ -228,8 +236,6 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
             syslog(LOG_DEBUG,"%s",emsg.str().c_str());                
             std::cout << emsg.str() << std::endl;
             exit(1);
-            // ThrowException(Exception::TypeError(String::New(emsg.str().c_str())));
-            return ros;
         }
     }
 
@@ -246,13 +252,9 @@ const LogBlob& LogBlob::operator[](const string &key) const
     }
     m_ITERATOR_MUTEX.unlock();
     if (pBlob == NULL) {
-        DEBUG_IO.lock();
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        DEBUG_IO.unlock();
-        exit(1);
-        // throw err.str(); // getting fucked up exceptions disabled while building, temporary
+        logStreamError("LogBlob.operator[]",err.str());
     }
     return *(pBlob);
 }
@@ -276,12 +278,9 @@ LogBlob& LogBlob::operator[](const string &key)
         // rString = regex_replace(rString,dQuoteReplace,"");
 
         if (key != rString) {
-            DEBUG_IO.lock();
             stringstream err;
             err << "LogBlob::operator[], ERROR: unable to insert invalid, key(" << key << ") LogBlob: " << *this; 
-            cout << err.str() << endl;
-            DEBUG_IO.unlock();
-            exit(1);
+            logStreamError("LogBlob.operator[]",err.str());
         }   
         insert(key, LogBlob());
         // could have another version of insert that returns a reference to the inserted logblob if needed
@@ -293,12 +292,9 @@ LogBlob& LogBlob::operator[](const string &key)
         }
         m_ITERATOR_MUTEX.unlock();
         if (pBlob2 == NULL) {
-            DEBUG_IO.lock();
             stringstream err;
             err << "LogBlob::operator[], ERROR: INCONCEIVABLE! unable to find key(" << key << ") we just inserted into LogBlob: " << *this; 
-            cout << err.str() << endl;
-            DEBUG_IO.unlock();
-            exit(1);            
+            logStreamError("LogBlob.operator[]",err.str());
         }
         return *(pBlob2);
     }
@@ -308,12 +304,9 @@ LogBlob& LogBlob::operator[](const string &key)
 const LogBlob& LogBlob::operator[](size_t index) const
 {
     if (index >= m_BlobArray.size()) {
-        DEBUG_IO.lock();
         stringstream err;
-        err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        DEBUG_IO.unlock();
-        exit(1);
+        err << "const LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
+        logStreamError("LogBlob.operator[]",err.str());
     }
     // no need to make a critical region, operator[] is considered thread safe for vectors
     // LogBlob *pBlob = NULL;
@@ -327,12 +320,9 @@ const LogBlob& LogBlob::operator[](size_t index) const
 LogBlob& LogBlob::operator[](size_t index)
 {
     if (index >= m_BlobArray.size()) {
-        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        DEBUG_IO.unlock();        
-        exit(1);
+        logStreamError("LogBlob.operator[]",err.str());
     }
 
     // no need to make a critical region, operator[] is considered thread safe for vectors
@@ -348,12 +338,9 @@ LogBlob& LogBlob::operator[](size_t index)
 int64_t LogBlob::toInt64() const
 {
     if (m_Type != LBDOUBLE && m_Type != LBINT64) {
-        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBINT64, type(" << m_Type << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        DEBUG_IO.unlock();        
-        exit(1);
+        logStreamError("LogBlob.toInt64",err.str());
     }
     if (m_Type == LBDOUBLE) {
         return m_dVal;
@@ -365,12 +352,9 @@ double  LogBlob::toDouble() const
 {
     if (m_Type == LBSTRING && m_sVal == "") return (double)0;
     else if (m_Type != LBDOUBLE && m_Type != LBINT64) {
-        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::toDouble const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
-        cout << err.str() << endl;
-        DEBUG_IO.unlock();
-        exit(1);
+        logStreamError("LogBlob.toInt64",err.str());
     }
     if (m_Type == LBINT64) {
         return m_iVal;

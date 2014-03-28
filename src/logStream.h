@@ -31,6 +31,8 @@ using namespace std;
 
 const bool VERBOSE_LOGGING = false;
 
+void logStreamError(const string &action,const string &emsg);
+
 enum LogBlobType { LBMAP, LBARRAY, LBINT64, LBDOUBLE, LBSTRING, LBUNDEFINED };
 
 class LogBlob {
