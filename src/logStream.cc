@@ -246,9 +246,11 @@ const LogBlob& LogBlob::operator[](const string &key) const
     }
     m_ITERATOR_MUTEX.unlock();
     if (pBlob == NULL) {
+        DEBUG_IO.lock();
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
         cout << err.str() << endl;
+        DEBUG_IO.unlock();
         exit(1);
         // throw err.str(); // getting fucked up exceptions disabled while building, temporary
     }
@@ -274,9 +276,11 @@ LogBlob& LogBlob::operator[](const string &key)
         // rString = regex_replace(rString,dQuoteReplace,"");
 
         if (key != rString) {
+            DEBUG_IO.lock();
             stringstream err;
             err << "LogBlob::operator[], ERROR: unable to insert invalid, key(" << key << ") LogBlob: " << *this; 
             cout << err.str() << endl;
+            DEBUG_IO.unlock();
             exit(1);
         }   
         insert(key, LogBlob());
@@ -289,9 +293,11 @@ LogBlob& LogBlob::operator[](const string &key)
         }
         m_ITERATOR_MUTEX.unlock();
         if (pBlob2 == NULL) {
+            DEBUG_IO.lock();
             stringstream err;
             err << "LogBlob::operator[], ERROR: INCONCEIVABLE! unable to find key(" << key << ") we just inserted into LogBlob: " << *this; 
             cout << err.str() << endl;
+            DEBUG_IO.unlock();
             exit(1);            
         }
         return *(pBlob2);
@@ -302,9 +308,11 @@ LogBlob& LogBlob::operator[](const string &key)
 const LogBlob& LogBlob::operator[](size_t index) const
 {
     if (index >= m_BlobArray.size()) {
+        DEBUG_IO.lock();
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
         cout << err.str() << endl;
+        DEBUG_IO.unlock();
         exit(1);
     }
     // no need to make a critical region, operator[] is considered thread safe for vectors
@@ -319,9 +327,11 @@ const LogBlob& LogBlob::operator[](size_t index) const
 LogBlob& LogBlob::operator[](size_t index)
 {
     if (index >= m_BlobArray.size()) {
+        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: index outside bounds, index(" << index << ") LogBlob: " << *this; 
         cout << err.str() << endl;
+        DEBUG_IO.unlock();        
         exit(1);
     }
 
@@ -338,9 +348,11 @@ LogBlob& LogBlob::operator[](size_t index)
 int64_t LogBlob::toInt64() const
 {
     if (m_Type != LBDOUBLE && m_Type != LBINT64) {
+        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::toInt64 const, ERROR: LogBlob not type LBINT64, type(" << m_Type << ") LogBlob: " << *this; 
         cout << err.str() << endl;
+        DEBUG_IO.unlock();        
         exit(1);
     }
     if (m_Type == LBDOUBLE) {
@@ -353,9 +365,11 @@ double  LogBlob::toDouble() const
 {
     if (m_Type == LBSTRING && m_sVal == "") return (double)0;
     else if (m_Type != LBDOUBLE && m_Type != LBINT64) {
+        DEBUG_IO.lock();        
         stringstream err;
         err << "LogBlob::toDouble const, ERROR: LogBlob not type LBDOUBLE, type(" << m_Type << ") LogBlob: " << *this; 
         cout << err.str() << endl;
+        DEBUG_IO.unlock();
         exit(1);
     }
     if (m_Type == LBINT64) {
