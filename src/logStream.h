@@ -73,6 +73,7 @@ public:
     string  toString() const;
 
     bool exists() const { return (m_Type != LBUNDEFINED) && ( m_sVal != string("(null)") ); };
+    bool keyExists(const string &key) const;
 
     unordered_map<string, LogBlob* >    m_Blob;
     vector<LogBlob *>                   m_BlobArray;

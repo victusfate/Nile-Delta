@@ -380,6 +380,22 @@ string  LogBlob::toString() const
     return ostr.str();
 }
 
+bool LogBlob::keyExists(const string &key) const
+{
+    LogBlob *pBlob = NULL;
+    m_ITERATOR_MUTEX.lock();
+    auto i = m_Blob.find(key);
+    if (i != m_Blob.end()) {
+        pBlob = i->second;
+    }
+    m_ITERATOR_MUTEX.unlock();
+    if (pBlob != NULL) {
+        return (pBlob->m_Type != LBUNDEFINED) && ( pBlob->m_sVal != string("(null)") );
+    }
+    return false;
+
+}
+
 
 string RunTime::TimeFormat(const double NumSeconds) const
 {
