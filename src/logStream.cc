@@ -14,10 +14,8 @@ mutex DEBUG_IO;
 
 void logStreamError(const string &action,const string &emsg)
 {
-    DEBUG_IO.lock();
     LogStream mout(LOG_ERR,action.c_str());
     mout << emsg << LogStream::endl;
-    DEBUG_IO.unlock();
     exit(1); 
 }
 
