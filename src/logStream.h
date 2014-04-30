@@ -11,6 +11,7 @@
 #include <vector>
 #include <iterator>
 #include <mutex>
+#include <memory>
 
 #include <sys/types.h>
 #include <sys/time.h>
@@ -75,8 +76,8 @@ public:
     bool exists() const { return (m_Type != LBUNDEFINED) && ( m_sVal != string("(null)") ); };
     bool keyExists(const string &key) const;
 
-    unordered_map<string, LogBlob* >    m_Blob;
-    vector<LogBlob *>                   m_BlobArray;
+    unordered_map<string, shared_ptr<LogBlob>>    m_Blob;
+    vector<shared_ptr<LogBlob>>                   m_BlobArray;
     int64_t m_iVal;
     double  m_dVal;
     string  m_sVal;

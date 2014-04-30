@@ -63,25 +63,25 @@ LogBlob::LogBlob(const string &key, const LogBlob &val) {
 void LogBlob::insert(const string &key, int64_t val)
 {
     m_Type = LBMAP;
-    m_Blob[key] = new LogBlob(val);   
+    m_Blob[key] = shared_ptr<LogBlob>(new LogBlob(val));   
 }
 
 void LogBlob::insert(const string &key, double val)
 {
     m_Type = LBMAP;
-    m_Blob[key] = new LogBlob(val);   
+    m_Blob[key] = shared_ptr<LogBlob>(new LogBlob(val));   
 }
 
 void LogBlob::insert(const string &key, const string &val)
 {
     m_Type = LBMAP;
-    m_Blob[key] = new LogBlob(val);   
+    m_Blob[key] = shared_ptr<LogBlob>(new LogBlob(val));   
 }
 
 void LogBlob::insert(const string &key, const LogBlob &val)
 {
     m_Type = LBMAP;
-    m_Blob[key] = new LogBlob(val);   
+    m_Blob[key] = shared_ptr<LogBlob>(new LogBlob(val));   
 
 }
 
@@ -92,12 +92,12 @@ void LogBlob::push(const LogBlob &val)
         m_Type = LBARRAY;
         m_ITERATOR_MUTEX.lock();
         m_BlobArray.resize(0);
-        m_BlobArray.push_back(new LogBlob(val));
+        m_BlobArray.push_back(shared_ptr<LogBlob>(new LogBlob(val)));
         m_ITERATOR_MUTEX.unlock();
     }
     else {
         m_ITERATOR_MUTEX.lock();
-        m_BlobArray.push_back(new LogBlob(val));
+        m_BlobArray.push_back(shared_ptr<LogBlob>(new LogBlob(val)));
         m_ITERATOR_MUTEX.unlock();
     }
 }
@@ -118,16 +118,8 @@ LogBlob::~LogBlob()
 
 void LogBlob::clean()
 {
-    m_ITERATOR_MUTEX.lock();
-    unordered_map<string, LogBlob* >::iterator i = m_Blob.begin();
-    for (;i != m_Blob.end();i++) {
-        if (i->second) delete i->second; // cascades down complex LogBlob maps
-    }
-    m_ITERATOR_MUTEX.unlock();
-
-    for (unsigned long j=0;j < m_BlobArray.size();j++) {
-        if (m_BlobArray[j]) delete m_BlobArray[j]; // cascades down complex LogBlob arrays
-    }
+    m_Blob.clear();
+    m_BlobArray.clear();
 }
 
 const LogBlob& LogBlob::operator=(int64_t r)
@@ -158,9 +150,9 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
     if (r.m_Type == LBMAP) {
         // lock mutex over iterated blob
         r.m_ITERATOR_MUTEX.lock();
-        unordered_map<string, LogBlob* >::const_iterator i = r.m_Blob.begin();
+        auto i = r.m_Blob.begin();
         for (;i != r.m_Blob.end();i++) {
-            m_Blob[i->first] = new LogBlob(*(i->second));
+            m_Blob[i->first] = shared_ptr<LogBlob>(new LogBlob(*(i->second)));
         }
         r.m_ITERATOR_MUTEX.unlock();
     }
@@ -168,7 +160,7 @@ const LogBlob& LogBlob::operator=(const LogBlob &r)
         m_BlobArray.resize(r.m_BlobArray.size());
         // can't lock around a lock in the right blob
         for (unsigned long i=0;i < r.m_BlobArray.size();i++) {
-            m_BlobArray[i] = new LogBlob(*(r.m_BlobArray[i]));
+            m_BlobArray[i] = shared_ptr<LogBlob>(new LogBlob(*(r.m_BlobArray[i])));
         }
     }
 
@@ -187,7 +179,7 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
     if (rBlob.m_Type == LBMAP) {
         ros << "{";
             rBlob.m_ITERATOR_MUTEX.lock();
-            unordered_map<string, LogBlob* > ::const_iterator i = rBlob.m_Blob.begin();
+            auto i = rBlob.m_Blob.begin();
             for (;i != rBlob.m_Blob.end();i++) {
                 if (i != rBlob.m_Blob.begin()) {
                     ros << ",";
@@ -242,14 +234,14 @@ ostream& operator<<(ostream& ros, const LogBlob &rBlob)
 
 const LogBlob& LogBlob::operator[](const string &key) const
 {
-    LogBlob *pBlob = NULL;
+    shared_ptr<LogBlob> pBlob;
     m_ITERATOR_MUTEX.lock();
-    unordered_map<string, LogBlob* >::const_iterator i = m_Blob.find(key);
+    auto i = m_Blob.find(key);
     if (i != m_Blob.end()) {
         pBlob = i->second;
     }
     m_ITERATOR_MUTEX.unlock();
-    if (pBlob == NULL) {
+    if (pBlob.use_count() == 0) {
         stringstream err;
         err << "LogBlob::operator[] const, ERROR: key not found, key(" << key << ") LogBlob: " << *this; 
         logStreamError("LogBlob.operator[]",err.str());
@@ -259,21 +251,17 @@ const LogBlob& LogBlob::operator[](const string &key) const
 
 LogBlob& LogBlob::operator[](const string &key)
 {
-    LogBlob *pBlob = NULL;
+    shared_ptr<LogBlob> pBlob;
     m_ITERATOR_MUTEX.lock();
-    unordered_map<string, LogBlob* >::iterator i = m_Blob.find(key);
+    auto i = m_Blob.find(key);
     if (i != m_Blob.end()) {
         pBlob = i->second;
     }
     m_ITERATOR_MUTEX.unlock();
-    if (pBlob == NULL) {
+    if (pBlob.use_count() == 0) {
 
         string rString = key;
         rString.erase( remove_if( rString.begin(), rString.end(), isDoubleQuote), rString.end() );
-        // linux bitched about the below
-        // rString.erase( remove( rString.begin(), rString.end(), '"'), rString.end() );
-        // regex dQuoteReplace("\"");
-        // rString = regex_replace(rString,dQuoteReplace,"");
 
         if (key != rString) {
             stringstream err;
@@ -282,14 +270,14 @@ LogBlob& LogBlob::operator[](const string &key)
         }   
         insert(key, LogBlob());
         // could have another version of insert that returns a reference to the inserted logblob if needed
-        LogBlob *pBlob2 = NULL;
+        shared_ptr<LogBlob> pBlob2;
         m_ITERATOR_MUTEX.lock();
-        unordered_map<string, LogBlob* >::iterator j = m_Blob.find(key);
+        auto j = m_Blob.find(key);
         if (j != m_Blob.end()) {
             pBlob2 = j->second;
         }
         m_ITERATOR_MUTEX.unlock();
-        if (pBlob2 == NULL) {
+        if (pBlob2.use_count() == 0) {
             stringstream err;
             err << "LogBlob::operator[], ERROR: INCONCEIVABLE! unable to find key(" << key << ") we just inserted into LogBlob: " << *this; 
             logStreamError("LogBlob.operator[]",err.str());
@@ -382,14 +370,14 @@ string  LogBlob::toString() const
 
 bool LogBlob::keyExists(const string &key) const
 {
-    LogBlob *pBlob = NULL;
+    shared_ptr<LogBlob> pBlob;
     m_ITERATOR_MUTEX.lock();
     auto i = m_Blob.find(key);
     if (i != m_Blob.end()) {
         pBlob = i->second;
     }
     m_ITERATOR_MUTEX.unlock();
-    if (pBlob != NULL) {
+    if (pBlob.use_count() != 0) {
         return (pBlob->m_Type != LBUNDEFINED) && ( pBlob->m_sVal != string("(null)") );
     }
     return false;
