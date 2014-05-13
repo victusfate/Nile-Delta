@@ -9,6 +9,7 @@
       ],
       'include_dirs+': [
       ],
+      'cflags' : ['-g', '-DHAVE_PTHREADS', '-D__STDC_CONSTANT_MACROS', '-D_FILE_OFFSET_BITS=64', '-D_LARGEFILE_SOURCE', '-Wall', '-std=c++0x'],
       'cflags!': [ '-fno-exceptions' ],
       'cflags_cc!': [ '-fno-exceptions' ],
       'conditions': [
